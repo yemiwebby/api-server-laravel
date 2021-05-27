@@ -18,7 +18,7 @@ class CheckTokenAndAccess
         $this->userRepository = $userRepository;
     }
 
-    public function handle($request, Closure $next) {
+    public function handle($request, Closure $next, $jwt) {
 
         $auth0 = App::make('auth0');
 
@@ -32,6 +32,10 @@ class CheckTokenAndAccess
                         ["message" => "Unauthorized user"],
                         Response::HTTP_UNAUTHORIZED
                     );
+                }
+
+                if (!in_array('read:admin-messages', $tokenInfo['permissions']) && $jwt === 'admin') {
+                    return response()->json(["message" => "Insufficient scopes."], Response::HTTP_UNAUTHORIZED);
                 }
             }
             catch (InvalidTokenException $e) {
