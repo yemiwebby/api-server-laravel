@@ -22,7 +22,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::group([ 'prefix' => 'messages'], function () {
     Route::get('public', [APIController::class, 'getPublicMessage']);
     Route::get('protected', [APIController::class, 'getProtectedMessage'])->middleware('jwt');
-    Route::get('admin', [APIController::class, 'getAdminMessage']);
+    Route::get('admin', [APIController::class, 'getAdminMessage'])->middleware('jwt');
 });
 
 
