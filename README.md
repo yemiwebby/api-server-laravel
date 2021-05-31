@@ -1,62 +1,208 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# Hello World API: Laravel + PHP Sample
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This sample uses [Laravel Auth0 Plugin](https://github.com/auth0/laravel-auth0) to implement the following security tasks:
 
-## About Laravel
+    
+This branch offers a working API server that exposes a public endpoint along with two protected endpoints. Each endpoint returns a different type of message: public, protected, and admin.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+The `GET /api/messages/protected` and `GET /api/messages/admin` endpoints are protected against unauthorized access. Any requests that contain a valid access token in their authorization header can access the protected and admin data.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+However, you should require that only access tokens that contain a `read:admin-messages` permission can access the admin data, which is referred to as [Role-Based Access Control (RBAC)](https://auth0.com/docs/authorization/rbac/).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+[Check out the `add-rbac` branch](https://github.com/yemiwebby/api-server-symfony/tree/add-rbac) to see authorization and Role-Based Access Control (RBAC) in action using Auth0.
 
-## Learning Laravel
+## Quick Auth0 Set Up
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Set up the project
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Install the project dependencies:
 
-## Laravel Sponsors
+```bash
+composer install
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+Next, create a new file named `.env` and replace its content with the details in `.env.example` file. You can issue this command for that:
 
-### Premium Partners
+```bash
+cp .env.example .env
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
+Once you are done, open `.env` file and update the values of the environment variables below:
 
-## Contributing
+```bash
+SERVER_PORT=6060
+CLIENT_ORIGIN_URL=http://localhost:4040
+AUTH0_AUDIENCE=http://localhost:6060
+AUTH0_DOMAIN=YOUR_AUTH0_DOMAIN
+AUTH0_CLIENT_ID=YOUR_AUTH0_ID
+AUTH0_CLIENT_SECRET=YOUR_AUTH0_CLIENT_SECRET
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Ensure to replace `YOUR_AUTH0_DOMAIN`, `YOUR_AUTH0_ID`, and `YOUR_AUTH0_CLIENT_SECRET` placeholders with the appropriate from your Auth0 dashboard
 
-## Code of Conduct
+### Register a(n) Laravel API with Auth0
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- Open the [APIs](https://manage.auth0.com/#/apis) section of the Auth0 Dashboard.
 
-## Security Vulnerabilities
+- Click on the **Create API** button.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- Provide a **Name** value such as _Hello World API Server_.
 
-## License
+- Set its **Identifier** to `https://api.example.com` or any other value of your liking.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- Leave the signing algorithm as `RS256` as it's the best option from a security standpoint.
+
+- Click on the **Create** button.
+
+> View ["Register APIs" document](https://auth0.com/docs/get-started/set-up-apis) for more details.
+
+### Connect Laravel with Auth0
+
+Head back to your Auth0 API page, and **follow these steps to get the Auth0 Audience**:
+
+![Get the Auth0 Audience to configure an API](https://cdn.auth0.com/blog/complete-guide-to-user-authentication/get-the-auth0-audience.png)
+
+1. Click on the **"Settings"** tab.
+
+2. Locate the **"Identifier"** field and copy its value.
+
+3. Paste the "Identifier" value as the value of `AUTH0_AUDIENCE` in `.env`.
+
+Now, **follow these steps to get the Auth0 Domain value**:
+
+![Get the Auth0 Domain to configure an API](https://cdn.auth0.com/blog/complete-guide-to-user-authentication/get-the-auth0-domain.png)
+
+1. Click on the **"Test"** tab.
+2. Locate the section called **"Asking Auth0 for tokens from my application"**.
+3. Click on the **cURL** tab to show a mock `POST` request.
+4. Copy your Auth0 domain, which is _part_ of the `--url` parameter value: `tenant-name.region.auth0.com`.
+5. Paste the Auth0 domain value as the value of `AUTH0_DOMAIN` in `.env`.
+
+**Tips to get the Auth0 Domain**
+
+- The Auth0 Domain is the substring between the protocol, `https://` and the path `/oauth/token`.
+
+- The Auth0 Domain follows this pattern: `tenant-name.region.auth0.com`.
+
+- The `region` subdomain (`au`, `us`, or `eu`) is optional. Some Auth0 Domains don't have it.
+
+### Run the project
+
+With the `.env` configuration values set, run the API server by issuing the following command:
+
+```bash
+php artisan serve
+```
+This will run the application on [http://localhost:6060](http://localhost:6060)
+
+## Test the Protected Endpoints
+
+You can get an access token from the Auth0 Dashboard to test making a secure call to your protected API endpoints.
+
+Head back to your Auth0 API page and click on the "Test" tab.
+
+Locate the section called "Sending the token to the API".
+
+Click on the cURL tab of the code box.
+
+Copy the sample cURL command:
+
+```bash
+curl --request GET \
+  --url http://path_to_your_api/ \
+  --header 'authorization: Bearer really-long-string-which-is-test-your-access-token'
+```
+
+Replace the value of `http://path_to_your_api/` with your protected API endpoint path (you can find all the available API endpoints in the next section) and execute the command. You should receive back a successful response from the server.
+
+You can try out any of our full stack demos to see the client-server Auth0 workflow in action using your preferred front-end and back-end technologies.
+
+## API Endpoints
+
+### 🔓 Get public message
+
+```bash
+GET /api/messages/public
+```
+
+#### Response
+
+```bash
+Status: 200 OK
+```
+
+```json
+{
+  "message": "The API doesn't require an access token to share this message."
+}
+```
+
+> 🔐 Protected Endpoints: These endpoints require the request to include an access token issued by Auth0 in the authorization header.
+
+### 🔐 Get protected message
+
+```bash
+GET /api/messages/protected
+```
+
+#### Response
+
+```bash
+Status: 200 OK
+```
+
+```json
+{
+  "message": "The API successfully validated your access token."
+}
+```
+
+### 🔐 Get admin message
+
+> You need to protect this endpoint using Role-Based Access Control (RBAC).
+
+```bash
+GET /api/messages/admin
+```
+
+#### Response
+
+```bash
+Status: 200 OK
+```
+
+```json
+{
+  "message": "The API successfully recognized you as an admin."
+}
+```
+
+## Error Handling
+
+### 400s errors
+
+#### Response
+
+```bash
+Status: Corresponding 400 status code
+```
+
+```json
+{
+  "message": "Message that describes the error that took place."
+}
+```
+
+### 500s errors
+
+#### Response
+
+```bash
+Status: 500 Internal Server Error
+```
+
+```json
+{
+  "message": "Message that describes the error that took place."
+}
+```
