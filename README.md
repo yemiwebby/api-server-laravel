@@ -18,10 +18,16 @@ Install the project dependencies:
 composer install
 ```
 
-Next, create a new file named `.env.local` and replace its content with the details in `.env` file. You can issue this command for that:
+Next, create a new file named `.env` and replace its content with the details in `.env.example` file. You can issue this command for that:
 
 ```bash
 cp .env.example .env
+```
+
+### Run the project
+
+```bash
+php artisan serve
 ```
 
 ## API Endpoints
